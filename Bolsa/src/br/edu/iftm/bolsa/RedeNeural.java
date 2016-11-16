@@ -53,31 +53,43 @@ public class RedeNeural {
 	public static void training(ArrayList<Double> closes) {
 		/**
 		 * The input necessary for XOR.
-		
-		
+
+
 		double XOR_INPUT[][] = { { 0.0, 0.0 }, { 1.0, 0.0 },
 				{ 0.0, 1.0 }, { 1.0, 1.0 } };
-		 
-		
+
+
 		 * The ideal data necessary for XOR.
-		
+
 		double XOR_IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
-		
-		*/
-		double XOR_INPUT[][] = new double[closes.size()/6][5];
-		double XOR_IDEAL[][] = new double[closes.size()/6][1];
-		
-		
-		for (int i = 0; i < closes.size(); i++) {
-			for (int j = 0; j < 5; j++) {
-				XOR_INPUT[i][j] = closes.get(i+j);
-				
+
+		 */
+		int num_linhas = closes.size()/6;
+		double XOR_INPUT[][] = new double[num_linhas][5];
+		double XOR_IDEAL[][] = new double[num_linhas][1];
+		int iIdeal = 0;
+
+		for (int i = 0; i < num_linhas; i++) {
+			for (int j = 0; j < 5; j++){
+				//anterior-atual/anterior
+				if(i == 0 && j == 0){
+					XOR_INPUT[i][j] = 0;
+					iIdeal = i+j;
+				}else{
+					XOR_INPUT[i][j] = (closes.get((i+j)-1) - closes.get(i+j)) / closes.get((i+j)-1);
+					iIdeal = i+j;
+				}
 			}
-			System.out.println(XOR_IDEAL[i][0]);
-			i++;
-			
-			XOR_IDEAL[0][0] = closes.get(i);
+			iIdeal++;
+			XOR_IDEAL[i][0] = (closes.get(iIdeal-1) - closes.get(iIdeal)) / closes.get(iIdeal-1);
 		}
+		System.out.println(XOR_INPUT[0][0]);
+		System.out.println(XOR_INPUT[0][1]);
+		System.out.println(XOR_INPUT[0][2]);
+		System.out.println(XOR_INPUT[0][3]);
+		System.out.println(XOR_INPUT[0][4]);
+
+		//System.exit(0);
 		/*
 		 * The main method.
 		 * @param args No arguments are used.
@@ -86,14 +98,14 @@ public class RedeNeural {
 		BasicNetwork network = new BasicNetwork();
 		network.addLayer(new BasicLayer(null,true,2));
 		network.addLayer(new BasicLayer(new ActivationSigmoid(),true,3));//original
-		network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 3));
+		//network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 3));
 		network.addLayer(new BasicLayer(new ActivationSigmoid(),false,1));//original
 		network.getStructure().finalizeStructure();
 		network.reset();
 
 		// create training data
 		MLDataSet trainingSet = new BasicMLDataSet(XOR_INPUT, XOR_IDEAL);
-		
+
 		// train the neural network
 		final ResilientPropagation train = new ResilientPropagation(network, trainingSet);
 
@@ -112,8 +124,11 @@ public class RedeNeural {
 			final MLData output = network.compute(pair.getInput());
 			System.out.println(pair.getInput().getData(0) + "," + pair.getInput().getData(1)
 					+ ", actual=" + output.getData(0) + ",ideal=" + pair.getIdeal().getData(0));
+		
+			//System.out.println(pair.getInput().getData(0));
 		}
 		
+
 		Encog.getInstance().shutdown();
 	}
 }
