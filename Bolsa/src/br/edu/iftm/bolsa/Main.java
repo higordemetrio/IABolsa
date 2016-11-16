@@ -12,12 +12,14 @@ public class Main {
     	//ArrayList<String> dates = ReadCSV.readCSVdates("Inputs/table.csv");
     	//ArrayList<Double> closes = ReadCSV.readCSVcloses("Inputs/table.csv");
     	
-    	//ArrayList<Double> closes = ReadCSV.readCSVclosesWithDate("Inputs",
-    	//		"2016-11-08", "2016-10-05");
+//    	ArrayList<Double> closes = ReadCSV.readCSVclosesWithDate("Inputs/table.csv",
+//    			"2010-01-01","2016-11-09");
     	
     	//minimo de 6
-    	ArrayList<Double> closes = ReadCSV.readCSVclosesWithAmount("Inputs/table.csv",6);
+    	//ArrayList<Double> closes = ReadCSV.readCSVclosesWithAmount("Inputs/table.csv",6);
     	
+    	ArrayList<Double> closes = ReadCSV.readCSVclosesWithDate("Inputs/table.csv",
+    			"2016-10-31","2016-11-09");
     	
 			System.out.println(closes);
 		

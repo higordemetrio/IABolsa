@@ -64,16 +64,19 @@ public class RedeNeural {
 		double XOR_IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
 		
 		*/
-		double XOR_INPUT[][] = new double[closes.size() - (closes.size()/6)][5];
+		double XOR_INPUT[][] = new double[closes.size()/6][5];
 		double XOR_IDEAL[][] = new double[closes.size()/6][1];
-				
+		
+		
 		for (int i = 0; i < closes.size(); i++) {
 			for (int j = 0; j < 5; j++) {
 				XOR_INPUT[i][j] = closes.get(i+j);
 				
 			}
+			System.out.println(XOR_IDEAL[i][0]);
 			i++;
-			XOR_IDEAL[i][0] = closes.get(i);
+			
+			XOR_IDEAL[0][0] = closes.get(i);
 		}
 		/*
 		 * The main method.
