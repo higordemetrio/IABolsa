@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 import org.encog.Encog;
 import org.encog.engine.network.activation.ActivationSigmoid;
+import org.encog.engine.network.activation.ActivationTANH;
 import org.encog.ml.data.MLData;
 import org.encog.ml.data.MLDataPair;
 import org.encog.ml.data.MLDataSet;
@@ -64,31 +65,41 @@ public class RedeNeural {
 		double XOR_IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
 
 		 */
-		int num_linhas = closes.size()/6;
+		int num_linhas = closes.size()-5;
 		double XOR_INPUT[][] = new double[num_linhas][5];
 		double XOR_IDEAL[][] = new double[num_linhas][1];
 		int iIdeal = 0;
+		
+		ArrayList<Double> lista = new ArrayList();
 
 		for (int i = 0; i < num_linhas; i++) {
 			for (int j = 0; j < 5; j++){
 				//anterior-atual/anterior
+				//atual - anterior/atual - edson
 				if(i == 0 && j == 0){
 					XOR_INPUT[i][j] = 0;
 					iIdeal = i+j;
 				}else{
-					XOR_INPUT[i][j] = (closes.get((i+j)-1) - closes.get(i+j)) / closes.get((i+j)-1);
+					XOR_INPUT[i][j] = (closes.get(i+j) - closes.get((i+j)-1)) / closes.get((i+j));
 					iIdeal = i+j;
 				}
 			}
 			iIdeal++;
-			XOR_IDEAL[i][0] = (closes.get(iIdeal-1) - closes.get(iIdeal)) / closes.get(iIdeal-1);
+			
+			XOR_IDEAL[i][0] = (closes.get(iIdeal) - closes.get(iIdeal-1)) / closes.get(iIdeal);
 		}
-		System.out.println(XOR_INPUT[0][0]);
-		System.out.println(XOR_INPUT[0][1]);
-		System.out.println(XOR_INPUT[0][2]);
-		System.out.println(XOR_INPUT[0][3]);
-		System.out.println(XOR_INPUT[0][4]);
-
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < num_linhas; j++) {
+				System.out.println(XOR_INPUT[j][i]);
+			}	
+		}
+		
+		for (int i = 0; i < 1; i++) {
+			for (int j = 0; j < num_linhas; j++) {
+				System.out.println(XOR_IDEAL[j][i]);
+			}	
+		}
+		
 		//System.exit(0);
 		/*
 		 * The main method.
@@ -96,10 +107,9 @@ public class RedeNeural {
 		 */
 		// create a neural network, without using a factory
 		BasicNetwork network = new BasicNetwork();
-		network.addLayer(new BasicLayer(null,true,2));
-		network.addLayer(new BasicLayer(new ActivationSigmoid(),true,3));//original
-		//network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 3));
-		network.addLayer(new BasicLayer(new ActivationSigmoid(),false,1));//original
+		network.addLayer(new BasicLayer(5));
+		network.addLayer(new BasicLayer(new ActivationTANH(),true,5));//original
+		network.addLayer(new BasicLayer(new ActivationTANH(),false,1));//original
 		network.getStructure().finalizeStructure();
 		network.reset();
 
@@ -115,7 +125,7 @@ public class RedeNeural {
 			train.iteration();
 			System.out.println("Epoch #" + epoch + " Error:" + train.getError());
 			epoch++;
-		} while(train.getError() > 0.01);
+		} while(train.getError() > 0.001);
 		train.finishTraining();
 
 		// test the neural network
@@ -124,8 +134,7 @@ public class RedeNeural {
 			final MLData output = network.compute(pair.getInput());
 			System.out.println(pair.getInput().getData(0) + "," + pair.getInput().getData(1)
 					+ ", actual=" + output.getData(0) + ",ideal=" + pair.getIdeal().getData(0));
-		
-			//System.out.println(pair.getInput().getData(0));
+
 		}
 		
 
