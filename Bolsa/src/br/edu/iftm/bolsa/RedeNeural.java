@@ -52,54 +52,59 @@ public class RedeNeural {
 
 
 	public static void training(ArrayList<Double> closes) {
-		/**
-		 * The input necessary for XOR.
+		//dividindo em 80%
+		int tam80 = (int) (closes.size()*0.8);
+		int tam20 = (int) (closes.size()*0.2);
+		//dividindo em 20%
 
-
-		double XOR_INPUT[][] = { { 0.0, 0.0 }, { 1.0, 0.0 },
-				{ 0.0, 1.0 }, { 1.0, 1.0 } };
-
-
-		 * The ideal data necessary for XOR.
-
-		double XOR_IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
-
-		 */
-		int num_linhas = closes.size()-5;
-		double XOR_INPUT[][] = new double[num_linhas][5];
-		double XOR_IDEAL[][] = new double[num_linhas][1];
+		int num_linhas = closes.size() -5;
+		int num_linhas80 = tam80 -5;
+		int num_linhas20 = tam20 -5;
+		double XOR_INPUT80[][] = new double[num_linhas80][5];
+		double XOR_INPUT20[][] = new double[num_linhas20][5];
+		double XOR_IDEAL80[][] = new double[num_linhas80][1];
+		double XOR_IDEAL20[][] = new double[num_linhas20][1];
 		int iIdeal = 0;
-		
+
 		ArrayList<Double> lista = new ArrayList();
 
 		for (int i = 0; i < num_linhas; i++) {
 			for (int j = 0; j < 5; j++){
 				//anterior-atual/anterior
 				//atual - anterior/atual - edson
-				if(i == 0 && j == 0){
-					XOR_INPUT[i][j] = 0;
-					iIdeal = i+j;
+				if(i<num_linhas80){
+					if(i == 0 && j == 0){
+						XOR_INPUT80[i][j] = 0;
+						iIdeal = i+j;
+					}else{
+						XOR_INPUT80[i][j] = (closes.get(i+j) - closes.get((i+j)-1)) / closes.get((i+j));
+						iIdeal = i+j;
+					}
 				}else{
-					XOR_INPUT[i][j] = (closes.get(i+j) - closes.get((i+j)-1)) / closes.get((i+j));
+					XOR_INPUT20[i][j] = (closes.get(i+j) - closes.get((i+j)-1)) / closes.get((i+j));
 					iIdeal = i+j;
 				}
 			}
 			iIdeal++;
-			
-			XOR_IDEAL[i][0] = (closes.get(iIdeal) - closes.get(iIdeal-1)) / closes.get(iIdeal);
+			if(i<num_linhas80){
+				XOR_IDEAL80[i][0] = (closes.get(iIdeal) - closes.get(iIdeal-1)) / closes.get(iIdeal);
+			}else{
+				XOR_IDEAL20[i][0] = (closes.get(iIdeal) - closes.get(iIdeal-1)) / closes.get(iIdeal);
+			}
 		}
+		/*
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < num_linhas; j++) {
-				System.out.println(XOR_INPUT[j][i]);
+				System.out.println(XOR_INPUT80[j][i]);
 			}	
 		}
-		
+
 		for (int i = 0; i < 1; i++) {
 			for (int j = 0; j < num_linhas; j++) {
-				System.out.println(XOR_IDEAL[j][i]);
+				System.out.println(XOR_IDEAL80[j][i]);
 			}	
 		}
-		
+*/
 		//System.exit(0);
 		/*
 		 * The main method.
@@ -114,10 +119,12 @@ public class RedeNeural {
 		network.reset();
 
 		// create training data
-		MLDataSet trainingSet = new BasicMLDataSet(XOR_INPUT, XOR_IDEAL);
+		MLDataSet trainingSet80 = new BasicMLDataSet(XOR_INPUT80, XOR_IDEAL80);
+
+		MLDataSet trainingSet20 = new BasicMLDataSet(XOR_INPUT20, XOR_IDEAL20);
 
 		// train the neural network
-		final ResilientPropagation train = new ResilientPropagation(network, trainingSet);
+		final ResilientPropagation train = new ResilientPropagation(network, trainingSet80);
 
 		int epoch = 1;
 
@@ -130,13 +137,13 @@ public class RedeNeural {
 
 		// test the neural network
 		System.out.println("Neural Network Results:");
-		for(MLDataPair pair: trainingSet ) {
+		for(MLDataPair pair: trainingSet20 ) {
 			final MLData output = network.compute(pair.getInput());
 			System.out.println(pair.getInput().getData(0) + "," + pair.getInput().getData(1)
 					+ ", actual=" + output.getData(0) + ",ideal=" + pair.getIdeal().getData(0));
 
 		}
-		
+
 
 		Encog.getInstance().shutdown();
 	}
